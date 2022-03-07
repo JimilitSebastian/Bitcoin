@@ -1,7 +1,7 @@
 
 import './style.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import Home from './Bitcoindata/container/index';
-
 function App() {
   return (
     <div className="App">

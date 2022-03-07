@@ -1,18 +1,29 @@
-/* eslint-disable react/jsx-no-undef */
-/* eslint-disable no-useless-constructor */
-/* eslint-disable no-undef */
+
 import React,{ useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
-import axios from 'axios'
-// eslint-disable-next-line no-unused-vars
-const Chart = ({symbol,setSymbol}) => {
 
-  const [graphData, setGraphData] =useState([])
-  console.log("test",graphData);
-  const fetchGraphData = async () => {
-    try {
-        let response = await axios.get(`https://api2.binance.com/api/v3/klines?symbol=${symbol}&interval=1h&startTime=1645660800000`)
-        let newData = response.data.map(item=>{
+import {getBitCoinDetailsFetch}  from '../../redux/actions'
+import { useDispatch,useSelector } from "react-redux";
+
+const Chart = ({symbol,setSymbol}) => {
+  
+const [graphData, setGraphData] =useState([])
+
+const dispatch = useDispatch()
+
+  useEffect(() => {
+   
+    dispatch(getBitCoinDetailsFetch({symbol:symbol}))
+}, [])
+
+const bitcoin_details = useSelector(state => state.reducer.bitcoin_details);
+
+
+useEffect(() => {
+      if(bitcoin_details && bitcoin_details.length)  {
+
+      
+        let newData = bitcoin_details.map(item=>{
             let obj =  { 
                         x: new Date(item[0]),
                         y: [parseFloat(item[1]),parseFloat(item[2]),parseFloat(item[3]),parseFloat(item[4])] 
@@ -20,11 +31,9 @@ const Chart = ({symbol,setSymbol}) => {
             return obj;
         });
         setGraphData(newData)
-    } catch(e) {
-        console.log(e)
-    }
-}
-
+ 
+      }
+    },[bitcoin_details])
 
         const state = {
             series: [{
@@ -33,7 +42,7 @@ const Chart = ({symbol,setSymbol}) => {
             options: {
               chart: {
                 type: 'candlestick',
-                height: 350
+                height: 500
               },
               title: {
                 text: 'Bitcoin Data',
@@ -50,19 +59,20 @@ const Chart = ({symbol,setSymbol}) => {
             },          
           };
         
-          useEffect(() => {
-            fetchGraphData()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        }, [])
+   
       
         return (
-            <div>
-                <button onClick={()=>{setSymbol(null)}}>Back</button>
-                <div className="common">
-                    <div >
-                        <ReactApexChart className="chart" options={state.options} series={state.series} type="candlestick" height={350} width={800} />
-                    </div>
+            <div className="chart-common">
+                <div>
+                  <button className="back" onClick={()=>{setSymbol(null)}}>Back</button>
                 </div>
+                  <div className="common">
+                      <div >
+                          <ReactApexChart className="chart" options={state.options} series={state.series} type="candlestick" height={350} width="100%" />
+                      </div>
+                  </div>
+                
+                 
             </div>
         );
       
